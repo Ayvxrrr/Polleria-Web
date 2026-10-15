@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-surface: #fff8f5;
+    --color-surface-dim: #e2d8d3;
+    --color-surface-bright: #fff8f5;
+    --color-surface-container-lowest: #ffffff;
+    --color-surface-container-low: #fcf2ec;
+    --color-surface-container: #f6ece6;
+    --color-surface-container-high: #f0e6e1;
+    --color-surface-container-highest: #eae1db;
+    --color-on-surface: #1f1b18;
+    --color-on-surface-variant: #5b403b;
+    --color-inverse-surface: #342f2c;
+    --color-inverse-on-surface: #f9efe9;
+    --color-outline: #907069;
+    --color-outline-variant: #e4beb6;
+    --color-surface-tint: #b82007;
+
+    --color-primary: #b51d04;
+    --color-on-primary: #ffffff;
+    --color-primary-container: #d9381e;
+    --color-on-primary-container: #fffcff;
+    --color-primary-fixed: #ffdad3;
+    --color-primary-fixed-dim: #ffb4a6;
+    --color-on-primary-fixed: #3f0300;
+
+    --color-secondary: #795900;
+    --color-on-secondary: #ffffff;
+    --color-secondary-container: #ffc329;
+    --color-on-secondary-container: #6f5100;
+    --color-secondary-fixed: #ffdf9f;
+    --color-secondary-fixed-dim: #f9bd22;
+    --color-on-secondary-fixed: #261a00;
+
+    --color-tertiary: #006b2f;
+    --color-on-tertiary: #ffffff;
+    --color-tertiary-container: #1f8642;
+    --color-on-tertiary-container: #f9fff5;
+    --color-tertiary-fixed: #95f8a7;
+    --color-tertiary-fixed-dim: #79db8d;
+    --color-on-tertiary-fixed: #00210a;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background-color: var(--color-surface);
+    color: var(--color-on-surface);
+    scroll-behavior: smooth;
+  }
+
+  .font-headline, .font-display-hero, .font-headline-lg, .font-headline-md, .font-headline-sm {
+    font-family: 'Epilogue', Georgia, serif;
+  }
+
+  .font-price-badge, .font-label-md, .font-label-sm {
+    font-family: 'Space Grotesk', monospace, sans-serif;
+  }
+
+  .font-body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+
+  /* Safe area padding */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+}
+
+/* Custom scrollbar hiding */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

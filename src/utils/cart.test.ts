@@ -1,0 +1,116 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {
+  formatSoles,
+  calculateSubtotal,
+  calculateTotalCount,
+  calculateTaperFee,
+  calculateGrandTotal,
+  filterMenuItems,
+  generateWhatsAppMessage
+} from './cart.ts';
+import type { CartItem, MenuItem } from '../types/index.ts';
+
+const mockPollo: MenuItem = {
+  id: 'pollo-entero',
+  title: '1 Pollo Entero',
+  description: 'Pollo entero a la brasa con papas y ensalada',
+  price: 58.00,
+  category: 'pollos',
+  categoryLabel: 'Pollos a la Brasa',
+  image: 'https://example.com/pollo.jpg'
+};
+
+const mockPromoChaufa: MenuItem = {
+  id: 'oferta-clasica',
+  title: 'Oferta Clásica Irresistible',
+  description: '1 Pollo entero + chaufa de pollo + papas + ensalada + Pepsi 2L',
+  price: 72.00,
+  category: 'combos',
+  categoryLabel: 'Combos & Parrillas',
+  image: 'https://example.com/promo.jpg',
+  taperCount: 2
+};
+
+const mockBebida: MenuItem = {
+  id: 'gaseosa-pepsi',
+  title: 'Gaseosa Pepsi 2L',
+  description: 'Botella familiar 2 Litros',
+  price: 11.00,
+  category: 'bebidas',
+  categoryLabel: 'Bebidas',
+  image: 'https://example.com/pepsi.jpg'
+};
+
+test('formatSoles formats numbers correctly with two decimals and S/ prefix', () => {
+  assert.equal(formatSoles(72), 'S/ 72.00');
+  assert.equal(formatSoles(14.5), 'S/ 14.50');
+  assert.equal(formatSoles(0), 'S/ 0.00');
+});
+
+test('calculateSubtotal and calculateTotalCount work accurately', () => {
+  const items: CartItem[] = [
+    { item: mockPollo, quantity: 1 },
+    { item: mockPromoChaufa, quantity: 2 }
+  ];
+
+  assert.equal(calculateSubtotal(items), 58.00 + (72.00 * 2));
+  assert.equal(calculateTotalCount(items), 3);
+});
+
+test('calculateTaperFee calculates tápers correctly', () => {
+  const itemsWithDrinks: CartItem[] = [
+    { item: mockPollo, quantity: 1 },        // 1 taper * 1.50 = 1.50
+    { item: mockPromoChaufa, quantity: 1 },  // 2 tapers * 1.50 = 3.00
+    { item: mockBebida, quantity: 2 }        // 0 tapers
+  ];
+
+  // 1 + 2 = 3 tapers * S/ 1.50 = S/ 4.50
+  assert.equal(calculateTaperFee(itemsWithDrinks), 4.50);
+});
+
+test('calculateGrandTotal adds subtotal, taper fee and delivery fee', () => {
+  const items: CartItem[] = [
+    { item: mockPromoChaufa, quantity: 1 }
+  ];
+  // Subtotal = 72.00, Taper = 2 * 1.50 = 3.00, Total = 75.00
+  const grandTotal = calculateGrandTotal(items, 'delivery');
+  assert.equal(grandTotal, 75.00);
+});
+
+test('filterMenuItems filters properly by text and category', () => {
+  const allItems: MenuItem[] = [mockPollo, mockPromoChaufa, mockBebida];
+
+  const pollos = filterMenuItems(allItems, '', 'pollos');
+  assert.equal(pollos.length, 1);
+  assert.equal(pollos[0].id, 'pollo-entero');
+
+  const searchResults = filterMenuItems(allItems, 'chaufa', 'all');
+  assert.equal(searchResults.length, 1);
+  assert.equal(searchResults[0].id, 'oferta-clasica');
+
+  const noResults = filterMenuItems(allItems, 'mariscos', 'all');
+  assert.equal(noResults.length, 0);
+});
+
+test('generateWhatsAppMessage creates expected message structure', () => {
+  const items: CartItem[] = [
+    { item: mockPromoChaufa, quantity: 1 }
+  ];
+  const orderDetails = {
+    customerName: 'Juan Pérez',
+    phone: '999888777',
+    deliveryMode: 'delivery' as const,
+    address: 'Av. Gran Chimú 550, SJL',
+    paymentMethod: 'yape' as const
+  };
+
+  const message = generateWhatsAppMessage(items, orderDetails);
+
+  assert.match(message, /HOLA POLLERÍA EL TOÑITO/);
+  assert.match(message, /1x Oferta Clásica Irresistible/);
+  assert.match(message, /Juan Pérez/);
+  assert.match(message, /Av\. Gran Chimú 550, SJL/);
+  assert.match(message, /Yape/);
+  assert.match(message, /S\/ 75\.00/);
+});

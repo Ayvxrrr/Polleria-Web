@@ -1,0 +1,6 @@
+{
+  "name": "Pollería El Toñito",
+  "description": "Pollería y Parrillas El Toñito - El auténtico sabor a leña, pollos a la brasa, mostritos, cortes finos y combos familiares en San Juan de Lurigancho.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
