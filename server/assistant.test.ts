@@ -63,7 +63,16 @@ test('AI responses use validated history without disclosing credentials', async 
 });
 
 test('provider failures never leak API errors or keys', async () => {
-  const response = await handleAssistantRequest(request(user('Hola')), { generate: async () => { throw new Error('secret-provider-details'); } });
+  const logs: unknown[] = [];
+  const apiKey = 'test-secret-api-key';
+  const prompt = 'private customer question';
+  const response = await handleAssistantRequest(request(user(prompt)), {
+    apiKey,
+    generate: async () => { throw new Error(`secret-provider-details ${apiKey} ${prompt} https://example.test/?key=${apiKey}`); },
+    logError: (...details) => logs.push(details),
+  });
   assert.equal(response.status, 502);
   assert.doesNotMatch(await response.text(), /secret-provider-details/);
+  assert.doesNotMatch(JSON.stringify(logs), new RegExp(`${apiKey}|${prompt}|[?&]key=${apiKey}`));
+  assert.match(JSON.stringify(logs), /secret-provider-details/);
 });

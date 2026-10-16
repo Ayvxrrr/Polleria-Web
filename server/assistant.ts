@@ -6,6 +6,7 @@ interface AssistantOptions {
   apiKey?: string;
   model?: string;
   generate?: (messages: ChatMessage[]) => Promise<string>;
+  logError?: (details: { status: number; name: string; message: string }) => void;
 }
 
 const json = (body: object, status = 200, extraHeaders: Record<string, string> = {}) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', ...extraHeaders } });
@@ -37,6 +38,20 @@ export async function handleAssistantRequest(request: Request, options: Assistan
     return json({ reply: reply.trim(), mode: 'ai' });
   } catch (error) {
     const status = typeof error === 'object' && error !== null && 'status' in error ? Number(error.status) : 0;
+    const details = typeof error === 'object' && error !== null ? error as { name?: unknown; message?: unknown } : {};
+    let message = typeof details.message === 'string' ? details.message : '';
+    if (apiKey) message = message.replaceAll(apiKey, '[redacted]');
+    for (const chatMessage of history) {
+      if (chatMessage.content) message = message.replaceAll(chatMessage.content, '[redacted]');
+    }
+    message = message.replace(/([?&](?:key|api_key|x-goog-api-key)=)[^&\s]+/gi, '$1[redacted]');
+    const logDetails = {
+      status: Number.isFinite(status) ? status : 0,
+      name: typeof details.name === 'string' ? details.name : 'UnknownError',
+      message,
+    };
+    if (options.logError) options.logError(logDetails);
+    else console.error('Assistant provider request failed', logDetails);
     return json({ error: status === 429 ? 'El asistente está recibiendo muchas consultas. Espera un momento o escríbenos por WhatsApp.' : 'No pude conectar con la IA. Inténtalo de nuevo o consulta directamente por WhatsApp.' }, status === 429 ? 429 : 502);
   }
 }
