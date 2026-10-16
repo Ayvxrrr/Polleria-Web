@@ -2,6 +2,10 @@ node_modules/
 build/
 dist/
 coverage/
+test-results/
+playwright-report/
+.netlify/
+.aistudio/
 .DS_Store
 *.log
 .env*

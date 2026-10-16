@@ -4,22 +4,23 @@ export type MenuCategory =
   | 'pollos'
   | 'mostritos'
   | 'piques'
-  | 'bebidas';
+  | 'chifa'
+  | 'ensaladas'
+  | 'porciones'
+  | 'bebidas'
+  | 'licores';
 
 export interface MenuItem {
   id: string;
   title: string;
   description: string;
   price: number;
-  originalPrice?: number;
   category: MenuCategory;
   categoryLabel: string;
   badge?: string;
-  badgeType?: 'primary' | 'secondary' | 'tertiary' | 'warning';
-  image: string;
-  serves?: string;
+  image?: string;
+  section?: 'Sopas' | 'Chaufa' | 'Aeropuertos' | 'Tortillas';
   tags?: string[];
-  includesTaper?: boolean;
   taperCount?: number;
   isPopular?: boolean;
   isOffer?: boolean;

@@ -1,127 +1,33 @@
-import React from 'react';
+import { ArrowUpRight, Clock3, Flame, MapPin, Phone, Star } from 'lucide-react';
 import { LOGO_URL, RESTAURANT_INFO } from '../data/menu.ts';
-import { MapPin, Phone, Mail, Clock, ShieldCheck } from 'lucide-react';
+import { ROUTES } from '../data/routes.ts';
+import { AppLink } from './AppLink.tsx';
 
-interface FooterProps {
-  onNavigate: (view: string) => void;
-}
-
-export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
-  return (
-    <footer className="w-full bg-[#fcf2ec] text-[#1f1b18] pt-12 pb-24 lg:pb-12 border-t border-[#e4beb6]/40">
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 pb-10 border-b border-[#e4beb6]/40">
-          
-          {/* Brand statement */}
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-2.5">
-              <img
-                src={LOGO_URL}
-                alt="Pollería El Toñito"
-                className="w-10 h-10 rounded-full object-cover shadow-xs"
-              />
-              <div className="flex flex-col">
-                <span className="font-headline font-bold text-lg text-[#b51d04] leading-tight">
-                  El Toñito
-                </span>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#795900]">
-                  {RESTAURANT_INFO.tagline}
-                </span>
-              </div>
-            </div>
-
-            <p className="text-xs text-[#5b403b] leading-relaxed">
-              Sabor a brasa inconfundible con la receta tradicional limeña. Pollos dorados, papas crocantes y salsas caseras que unen a la familia.
-            </p>
-
-            <div className="flex items-center gap-1.5 mt-1 text-[#006b2f] text-xs font-bold uppercase tracking-wider">
-              <ShieldCheck className="w-4 h-4" />
-              <span>Sabor Tradicional Garantizado</span>
-            </div>
-          </div>
-
-          {/* Ubicación */}
-          <div className="flex flex-col gap-3">
-            <h3 className="font-bold text-sm text-[#1f1b18] uppercase tracking-wider">
-              Ubicación & Locales
-            </h3>
-            <div className="flex items-start gap-2 text-xs text-[#5b403b]">
-              <MapPin className="w-4 h-4 text-[#b51d04] shrink-0 mt-0.5" />
-              <span>{RESTAURANT_INFO.address}</span>
-            </div>
-            <a
-              href="https://maps.google.com/?q=San+Juan+de+Lurigancho+Lima+Peru"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs font-bold text-[#b51d04] hover:underline"
-            >
-              <span>Ver en Google Maps</span>
-            </a>
-          </div>
-
-          {/* Horario & Contacto */}
-          <div className="flex flex-col gap-3">
-            <h3 className="font-bold text-sm text-[#1f1b18] uppercase tracking-wider">
-              Horario & Contacto
-            </h3>
-            <div className="flex items-center gap-2 text-xs text-[#5b403b]">
-              <Clock className="w-4 h-4 text-[#795900] shrink-0" />
-              <span>Lunes a Domingo: 12:00 PM - 11:00 PM</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-[#5b403b]">
-              <Phone className="w-4 h-4 text-[#b51d04] shrink-0" />
-              <a href="tel:+51928067861" className="hover:underline font-semibold">
-                Central: +51 928 067 861 / 910 449 497
-              </a>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-[#5b403b]">
-              <Mail className="w-4 h-4 text-[#006b2f] shrink-0" />
-              <span>pedidos@eltonito.pe</span>
-            </div>
-          </div>
-
-          {/* Métodos de Pago */}
-          <div className="flex flex-col gap-3">
-            <h3 className="font-bold text-sm text-[#1f1b18] uppercase tracking-wider">
-              Métodos de Pago
-            </h3>
-            <p className="text-xs text-[#5b403b]">
-              Aceptamos todas las formas de pago en tienda y contraentrega:
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              <span className="px-2.5 py-1 rounded-lg bg-white border border-[#e4beb6]/40 text-xs font-bold text-[#742384]">
-                Yape
-              </span>
-              <span className="px-2.5 py-1 rounded-lg bg-white border border-[#e4beb6]/40 text-xs font-bold text-[#00bfa5]">
-                Plin
-              </span>
-              <span className="px-2.5 py-1 rounded-lg bg-white border border-[#e4beb6]/40 text-xs font-bold text-[#1f1b18]">
-                Tarjetas Visa / MC
-              </span>
-              <span className="px-2.5 py-1 rounded-lg bg-white border border-[#e4beb6]/40 text-xs font-bold text-[#006b2f]">
-                Efectivo
-              </span>
-            </div>
-          </div>
-
-        </div>
-
-        {/* Bottom copyright */}
-        <div className="pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-[#5b403b]">
-          <p>© 2025 Pollería El Toñito. Todos los derechos reservados.</p>
-          <div className="flex items-center gap-4 text-xs font-medium">
-            <button onClick={() => onNavigate('ubicacion-delivery')} className="hover:text-[#b51d04] cursor-pointer">
-              Políticas de Delivery
-            </button>
-            <span className="text-gray-300">•</span>
-            <button onClick={() => onNavigate('ubicacion-delivery')} className="hover:text-[#b51d04] cursor-pointer">
-              Libro de Reclamaciones
-            </button>
-          </div>
-        </div>
-
+export function Footer({ onNavigate }: { onNavigate: (view: string) => void }) {
+  return <footer className="site-footer"><div className="container">
+    <div className="footer-top">
+      <div><span className="eyebrow"><Flame size={16} /> EL MEJOR INGREDIENTE ES LA COMPAÑÍA</span><h2>¿Y SI HOY<br /><span>PEDIMOS TOÑITO?</span></h2></div>
+      <AppLink view="carta-menu" onNavigate={onNavigate} className="btn btn-yellow">Vamos a la carta <ArrowUpRight size={21} /></AppLink>
+    </div>
+    <div className="footer-grid">
+      <div>
+        <AppLink view="inicio" onNavigate={onNavigate} className="footer-brand"><img src={LOGO_URL} width="72" height="72" alt="Logo El Toñito" /><span>El Toñito<small>POLLERÍA & PARRILLAS</small></span></AppLink>
+        <p>Buena brasa, buena mesa.<br />El sabor que nos reúne en Manchay.</p>
       </div>
-    </footer>
-  );
-};
+      <div><h3>Explora el sabor</h3><nav aria-label="Navegación del pie de página">{ROUTES.map(route => <AppLink key={route.id} view={route.id} onNavigate={onNavigate}>{route.label}</AppLink>)}</nav></div>
+      <div>
+        <h3>Nos encontramos aquí</h3>
+        <a className="footer-detail" href={RESTAURANT_INFO.mapsUrl} target="_blank" rel="noopener noreferrer"><MapPin size={17} /><span>{RESTAURANT_INFO.address}</span></a>
+        <p className="footer-detail"><Clock3 size={17} /><span>Lunes a domingo<br />12:00 p. m. — 11:00 p. m.</span></p>
+      </div>
+      <div>
+        <h3>Hablemos de tu pedido</h3>
+        <a className="footer-phone" href={RESTAURANT_INFO.phoneUrl}><Phone size={19} /> {RESTAURANT_INFO.phone1}</a>
+        <a className="footer-whatsapp" href={`https://wa.me/${RESTAURANT_INFO.whatsappNumber}`} target="_blank" rel="noopener noreferrer">Escríbenos por WhatsApp <ArrowUpRight size={16} /></a>
+        <a className="footer-review" href={RESTAURANT_INFO.reviewUrl} target="_blank" rel="noopener noreferrer"><Star size={15} /> Dejar una reseña en Maps <ArrowUpRight size={14} /></a>
+        <div className="payment-badges"><span>Yape</span><span>Plin</span><span>Visa</span><span>Efectivo</span></div>
+      </div>
+    </div>
+    <div className="footer-bottom"><span>© {new Date().getFullYear()} Pollería El Toñito. Todos los derechos reservados.</span><span>Hecho para compartir. <Flame size={13} /></span></div>
+  </div></footer>;
+}

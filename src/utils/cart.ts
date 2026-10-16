@@ -1,67 +1,35 @@
 import type { CartItem, MenuItem, OrderDetails } from '../types/index.ts';
+import { RESTAURANT_INFO } from '../data/menu.ts';
 
-export const RESTAURANT_PHONE_1 = '928067861';
-export const RESTAURANT_PHONE_2 = '910449497';
-export const RESTAURANT_WHATSAPP = '51928067861';
+export const RESTAURANT_WHATSAPP = RESTAURANT_INFO.whatsappNumber;
 export const TAPER_UNIT_PRICE = 1.50;
 
-/**
- * Format numeric value in Peruvian Soles format: "S/ 72.00"
- */
 export function formatSoles(amount: number): string {
   return `S/ ${amount.toFixed(2)}`;
 }
 
-/**
- * Calculate the subtotal of all items in the cart
- */
 export function calculateSubtotal(items: CartItem[]): number {
   return items.reduce((acc, curr) => acc + curr.item.price * curr.quantity, 0);
 }
 
-/**
- * Calculate total number of items
- */
 export function calculateTotalCount(items: CartItem[]): number {
   return items.reduce((acc, curr) => acc + curr.quantity, 0);
 }
 
-/**
- * Calculate taper fee: Each main dish or combo needs 1 taper unless it's a bottled drink or already sealed
- */
 export function calculateTaperFee(items: CartItem[]): number {
-  const tapers = items.reduce((acc, curr) => {
-    // If explicitly specified
-    if (curr.item.taperCount !== undefined) {
-      return acc + (curr.item.taperCount * curr.quantity);
-    }
-    // Drinks do not need tápers
-    if (curr.item.category === 'bebidas') {
-      return acc;
-    }
-    // Combos and large portions use 1-2 tápers
-    if (curr.item.category === 'combos' && curr.item.price >= 70) {
-      return acc + (2 * curr.quantity);
-    }
-    return acc + (1 * curr.quantity);
-  }, 0);
-
+  const tapers = items.reduce((acc, { item, quantity }) => acc + (item.taperCount ?? 0) * quantity, 0);
   return tapers * TAPER_UNIT_PRICE;
 }
 
-/**
- * Calculate delivery fee based on delivery mode
- */
-export function calculateDeliveryFee(mode: 'delivery' | 'pickup', subtotal: number): number {
-  if (mode === 'pickup') return 0;
-  // Free delivery for orders over S/ 80 or promotion
-  if (subtotal >= 80) return 0;
-  return 0; // Promocional delivery gratis en San Juan de Lurigancho
+export function hasUnconfirmedTapers(items: CartItem[]): boolean {
+  return items.some(({ item }) => item.taperCount === undefined && item.category !== 'bebidas' && item.category !== 'licores');
 }
 
-/**
- * Calculate grand total
- */
+export function calculateDeliveryFee(_mode: 'delivery' | 'pickup', _subtotal: number): number {
+  // El envío se cotiza por WhatsApp y no se suma al estimado de la web.
+  return 0;
+}
+
 export function calculateGrandTotal(items: CartItem[], mode: 'delivery' | 'pickup'): number {
   const subtotal = calculateSubtotal(items);
   const taperFee = calculateTaperFee(items);
@@ -69,15 +37,13 @@ export function calculateGrandTotal(items: CartItem[], mode: 'delivery' | 'picku
   return subtotal + taperFee + deliveryFee;
 }
 
-/**
- * Filter menu items by search query and category
- */
 export function filterMenuItems(
   items: MenuItem[],
   query: string,
   category: string
 ): MenuItem[] {
-  const cleanQuery = query.toLowerCase().trim();
+  const normalize = (text: string) => text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const cleanQuery = normalize(query).trim();
 
   return items.filter(item => {
     const matchesCategory = category === 'all' || item.category === category;
@@ -85,17 +51,14 @@ export function filterMenuItems(
 
     if (!cleanQuery) return true;
 
-    const inTitle = item.title.toLowerCase().includes(cleanQuery);
-    const inDesc = item.description.toLowerCase().includes(cleanQuery);
-    const inTags = item.tags?.some(tag => tag.toLowerCase().includes(cleanQuery));
+    const inTitle = normalize(item.title).includes(cleanQuery);
+    const inDesc = normalize(item.description).includes(cleanQuery);
+    const inTags = item.tags?.some(tag => normalize(tag).includes(cleanQuery)) || (item.section && normalize(item.section).includes(cleanQuery));
 
     return inTitle || inDesc || Boolean(inTags);
   });
 }
 
-/**
- * Generate formatted WhatsApp order message and full wa.me link
- */
 export function generateWhatsAppMessage(
   items: CartItem[],
   orderDetails: Partial<OrderDetails>
@@ -123,11 +86,17 @@ export function generateWhatsAppMessage(
   if (taperFee > 0) {
     lines.push(`🥡 *Costo de Táperes:* ${formatSoles(taperFee)}`);
   }
-  lines.push(`🛵 *Modalidad:* ${orderDetails.deliveryMode === 'pickup' ? 'Recojo en Local (Av. Próceres 1420)' : 'Delivery a Domicilio'}`);
-  if (orderDetails.deliveryMode === 'delivery') {
-    lines.push(`🚚 *Envío:* ${deliveryFee === 0 ? 'Gratis (Promoción)' : formatSoles(deliveryFee)}`);
+  if (hasUnconfirmedTapers(items)) {
+    lines.push('🥡 *Táperes adicionales:* S/ 1.50 por unidad; cantidad por confirmar, no incluida en el total.');
   }
-  lines.push(`💰 *TOTAL A PAGAR: ${formatSoles(total)}*`);
+  lines.push(`🛵 *Modalidad:* ${orderDetails.deliveryMode === 'pickup' ? `Recojo en Local (${RESTAURANT_INFO.address})` : 'Delivery a Domicilio'}`);
+  if (orderDetails.deliveryMode === 'pickup') {
+    lines.push(`📍 *Cómo llegar:* ${RESTAURANT_INFO.mapsUrl}`);
+  }
+  if (orderDetails.deliveryMode === 'delivery') {
+    lines.push('🚚 *Envío:* Costo y cobertura por confirmar con el local (no incluido en el total).');
+  }
+  lines.push(`💰 *TOTAL ESTIMADO: ${formatSoles(total)}*`);
   lines.push('');
 
   if (orderDetails.customerName) {
@@ -149,11 +118,11 @@ export function generateWhatsAppMessage(
   }
 
   const paymentLabels: Record<string, string> = {
-    yape: 'Yape (al 928 067 861)',
-    plin: 'Plin (al 928 067 861)',
+    yape: 'Yape (confirmar datos con el local)',
+    plin: 'Plin (confirmar datos con el local)',
     tarjeta: 'Tarjeta con POS (Visa / Mastercard)',
     efectivo: orderDetails.cashAmount 
-      ? `Efectivo (Paga con S/ ${orderDetails.cashAmount.toFixed(2)}, vuelto: ${formatSoles(Math.max(0, orderDetails.cashAmount - total))})`
+      ? `Efectivo (Paga con S/ ${orderDetails.cashAmount.toFixed(2)}; confirmar total y vuelto con el local)`
       : 'Efectivo exacto contra entrega'
   };
 
@@ -171,9 +140,6 @@ export function generateWhatsAppMessage(
   return lines.join('\n');
 }
 
-/**
- * Generate full wa.me direct URL
- */
 export function getWhatsAppOrderUrl(
   items: CartItem[],
   orderDetails: Partial<OrderDetails>

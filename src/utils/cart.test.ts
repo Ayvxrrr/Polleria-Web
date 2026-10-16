@@ -18,7 +18,8 @@ const mockPollo: MenuItem = {
   price: 58.00,
   category: 'pollos',
   categoryLabel: 'Pollos a la Brasa',
-  image: 'https://example.com/pollo.jpg'
+  image: 'https://example.com/pollo.jpg',
+  taperCount: 1
 };
 
 const mockPromoChaufa: MenuItem = {
@@ -60,12 +61,11 @@ test('calculateSubtotal and calculateTotalCount work accurately', () => {
 
 test('calculateTaperFee calculates tápers correctly', () => {
   const itemsWithDrinks: CartItem[] = [
-    { item: mockPollo, quantity: 1 },        // 1 taper * 1.50 = 1.50
-    { item: mockPromoChaufa, quantity: 1 },  // 2 tapers * 1.50 = 3.00
-    { item: mockBebida, quantity: 2 }        // 0 tapers
+    { item: mockPollo, quantity: 1 },
+    { item: mockPromoChaufa, quantity: 1 },
+    { item: mockBebida, quantity: 2 }
   ];
 
-  // 1 + 2 = 3 tapers * S/ 1.50 = S/ 4.50
   assert.equal(calculateTaperFee(itemsWithDrinks), 4.50);
 });
 
@@ -73,9 +73,17 @@ test('calculateGrandTotal adds subtotal, taper fee and delivery fee', () => {
   const items: CartItem[] = [
     { item: mockPromoChaufa, quantity: 1 }
   ];
-  // Subtotal = 72.00, Taper = 2 * 1.50 = 3.00, Total = 75.00
   const grandTotal = calculateGrandTotal(items, 'delivery');
   assert.equal(grandTotal, 75.00);
+});
+
+test('unknown container counts are not invented or charged', () => {
+  const items: CartItem[] = [{ item: { ...mockPollo, taperCount: undefined }, quantity: 1 }];
+  assert.equal(calculateTaperFee(items), 0);
+  assert.equal(calculateGrandTotal(items, 'delivery'), 58);
+  const message = generateWhatsAppMessage(items, { deliveryMode: 'delivery' });
+  assert.match(message, /cantidad por confirmar/);
+  assert.match(message, /S\/ 1.50 por unidad/);
 });
 
 test('filterMenuItems filters properly by text and category', () => {
@@ -101,7 +109,7 @@ test('generateWhatsAppMessage creates expected message structure', () => {
     customerName: 'Juan Pérez',
     phone: '999888777',
     deliveryMode: 'delivery' as const,
-    address: 'Av. Gran Chimú 550, SJL',
+    address: 'Mz. C, lote 10, El Pedregal, Manchay',
     paymentMethod: 'yape' as const
   };
 
@@ -110,7 +118,19 @@ test('generateWhatsAppMessage creates expected message structure', () => {
   assert.match(message, /HOLA POLLERÍA EL TOÑITO/);
   assert.match(message, /1x Oferta Clásica Irresistible/);
   assert.match(message, /Juan Pérez/);
-  assert.match(message, /Av\. Gran Chimú 550, SJL/);
+  assert.match(message, /Mz\. C, lote 10, El Pedregal, Manchay/);
   assert.match(message, /Yape/);
   assert.match(message, /S\/ 75\.00/);
+});
+
+test('pickup orders include the Manchay address and the supplied Google Maps link', () => {
+  const message = generateWhatsAppMessage(
+    [{ item: mockPollo, quantity: 1 }],
+    { deliveryMode: 'pickup' }
+  );
+
+  assert.match(message, /Recojo en Local \(Av\. Victor Malasquez Mz\. B-14/);
+  assert.match(message, /El Pedregal, Huertos de Manchay/);
+  assert.ok(message.includes('https://maps.app.goo.gl/LuAoXEyywqNRE8Pz5'));
+  assert.doesNotMatch(message, /SJL|Lurigancho|Próceres/);
 });
