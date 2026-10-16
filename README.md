@@ -92,7 +92,7 @@ En el inicio, ubicación y pie de página hay enlaces para **dejar una reseña**
 
 ## Imágenes locales
 
-La carta usa únicamente archivos locales de `public/images/`. No hay generador de imágenes ni se necesita una API key para las fotos. Los platos pendientes de fotografía muestran un icono de su categoría.
+La carta usa únicamente archivos locales de `public/images/`. No hay generador de imágenes ni se necesita una API key para las fotos. Cada producto tiene su propia fotografía recortada de las cartas facilitadas; las imágenes se ampliaron para mejorar su presentación, aunque la nitidez está limitada por la resolución original.
 
 Para añadir una imagen, guarda el archivo en esa carpeta y asigna su ruta en el plato correspondiente de `src/data/menu.ts`. Por ejemplo: `image: '/images/chaufa-pollo.webp'`. Se recomiendan archivos WebP o JPEG optimizados. Al desplegar, las imágenes viajan junto con la web.
 

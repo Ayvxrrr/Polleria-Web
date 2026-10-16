@@ -47,13 +47,15 @@ test('all supplied chifa sections are complete', () => {
   assert.deepEqual(Object.fromEntries(['Sopas', 'Chaufa', 'Aeropuertos', 'Tortillas'].map(section => [section, chifa.filter(item => item.section === section).length])), { Sopas: 5, Chaufa: 6, Aeropuertos: 5, Tortillas: 4 });
 });
 
-test('menu photos are existing local files, never external image services', () => {
+test('every menu item has a unique local photo', () => {
   for (const item of MENU_ITEMS) {
-    if (!item.image) continue;
-    assert.ok(item.image.startsWith('/images/'));
-    assert.ok(!item.image.includes('..'));
-    assert.ok(existsSync(new URL(`../../public${item.image}`, import.meta.url)), `Missing local image: ${item.image}`);
+    const image = item.image;
+    assert.ok(image, `Missing photo for ${item.id}`);
+    assert.ok(image.startsWith('/images/'));
+    assert.ok(!image.includes('..'));
+    assert.ok(existsSync(new URL(`../../public${image}`, import.meta.url)), `Missing local image: ${image}`);
   }
+  assert.equal(new Set(MENU_ITEMS.map(item => item.image)).size, MENU_ITEMS.length);
 });
 
 test('accompaniments match the printed descriptions instead of invented ingredients', () => {
