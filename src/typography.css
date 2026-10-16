@@ -140,12 +140,14 @@ body { font-size: var(--type-body); line-height: 1.65; }
 .assistant-header > div { min-width: 0; }
 .assistant-header h2 { font-size: var(--type-body); line-height: 1.4; }
 .assistant-header > div > span { font-size: var(--type-caption); line-height: 1.5; }
+.assistant-disclaimer { font-size: var(--type-caption); line-height: 1.6; }
+.assistant-disclaimer > a { font-size: var(--type-small); }
 .assistant-header .icon-button { min-width: 44px; width: 44px; height: 44px; }
 .chat-welcome > span, .chat-message > small { font-size: var(--type-caption); letter-spacing: .045em; }
 .chat-welcome h3 { font-size: 2rem; }
 .chat-welcome > p, .chat-message > p { font-size: var(--type-small); line-height: 1.75; }
 .quick-questions button { min-height: 50px; font-size: var(--type-small); gap: 12px; }
-.guide-notice, .assistant-disclaimer, .assistant-disclaimer > a, .assistant-disclaimer > span { font-size: var(--type-caption); line-height: 1.6; }
+.guide-notice { font-size: var(--type-caption); line-height: 1.6; }
 .assistant-disclaimer > a { min-height: 36px; }
 .assistant-form textarea { min-height: 48px; font-size: var(--type-small); }
 .assistant-form > button { width: 48px; height: 48px; }
@@ -220,7 +222,7 @@ body { font-size: var(--type-body); line-height: 1.65; }
   .location-details .btn { flex-wrap: wrap; }
   .assistant-panel, .assistant-widget.with-cart .assistant-panel { inset: calc(10px + env(safe-area-inset-top)) 10px calc(10px + env(safe-area-inset-bottom)); height: auto; width: auto; }
   .assistant-header { gap: 10px; }
-  .assistant-avatar { width: 36px; height: 36px; flex-shrink: 0; }
+  .assistant-avatar { width: 40px; height: 40px; flex: 0 0 40px; }
   .assistant-header h2 { font-size: var(--type-small); }
   .assistant-disclaimer { padding-bottom: 12px; }
   .cart-drawer { width: min(100%, 620px); }
